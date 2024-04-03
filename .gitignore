@@ -1,0 +1,4 @@
+node_modules/
+.env
+.vscode/
+# add any other files/folders you want to ignore
