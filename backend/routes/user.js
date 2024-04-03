@@ -21,11 +21,13 @@ const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const SERVICE_ACCOUNT_KEY_FILE = './service.json';
 const CALENDAR_ID = '829076bf460b9a754f920e0d41b63fca8e319a161a62bb96329a1d56f46a22c2@group.calendar.google.com';
 
-const auth = new JWT({
-  keyFile: SERVICE_ACCOUNT_KEY_FILE,
+const auth = new google.auth.JWT({
+  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/gm, '\n'),
   scopes: SCOPES,
-  subject: 'garvit@garvitsharma.me',
+  subject: process.env.GOOGLE_SERVICE_ACCOUNT_SUBJECT,
 });
+
 
 const calendar = google.calendar({ version: 'v3', auth });
 
