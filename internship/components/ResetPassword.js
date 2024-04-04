@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import the icon library
+import Svg, { Path } from 'react-native-svg';
+
 
 
 
@@ -32,7 +34,7 @@ if (!token) {
 
     try {
       // Send the new password and token to your backend for updating
-      const response = await fetch('http://10.9.20.246:3000/api/users/reset-password', {
+      const response = await fetch('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,8 +62,15 @@ if (!token) {
 
   return (
     <View style={styles.container}>
-           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Icon name="chevron-left" size={24} color="#333" />
+    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <View style={styles.backButtonContainer}>
+          <Svg width={16} height={16} viewBox="0 0 320 512">
+            <Path
+              fill="#333"
+              d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"
+            />
+          </Svg>
+        </View>
       </TouchableOpacity>
       <Text style={styles.header}>Reset Password</Text>
       <Text style={styles.subheader}>
@@ -155,10 +164,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     left: 20,
+    zIndex: 1,
   },
-  backButtonText: {
-    fontSize: 16,
-    color: '#333',
+  backButtonContainer: {
+    padding: 10,
   },
 });
 

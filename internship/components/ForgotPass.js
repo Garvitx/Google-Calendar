@@ -10,7 +10,7 @@ const ForgotPasswordScreen = () => {
   const handleForgotPassword = async () => {
     try {
       // Send a request to your backend to initiate the password reset process
-      const response = await axios.post('http://10.9.20.246:3000/api/users/forgot-password', {
+      const response = await axios.post('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/forgot-password', {
         email,
       });
   
@@ -91,6 +91,8 @@ const styles = StyleSheet.create({
   forgotPasswordButton: {
     backgroundColor: '#ff9800',
     paddingVertical: 15,
+    paddingHorizontal: 150,
+
     borderRadius: 30,
     alignItems: 'center',
   },

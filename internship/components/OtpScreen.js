@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Svg, { Path } from 'react-native-svg';
+
 
 const OTPVerificationScreen = ({ route }) => {
   const [otp, setOTP] = useState(['', '', '', '']);
@@ -8,6 +10,7 @@ const OTPVerificationScreen = ({ route }) => {
   const [resendEnabled, setResendEnabled] = useState(false);
   const { email } = route.params || {};
   const navigation = useNavigation();
+  
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,7 +52,7 @@ const OTPVerificationScreen = ({ route }) => {
     const enteredOTP = otp.join('');
   
     // Send the OTP code and the email to your backend for verification
-    const response = await fetch('http://10.9.20.246:3000/api/users/verify-otp', {
+    const response = await fetch('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/verify-otp', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +66,7 @@ const OTPVerificationScreen = ({ route }) => {
       console.log('OTP verification successful');
   
       // Make an API call to generate the reset token
-      const resetTokenResponse = await fetch('http://10.9.20.246:3000/api/users/generate-reset-token', {
+      const resetTokenResponse = await fetch('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/generate-reset-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +95,7 @@ const OTPVerificationScreen = ({ route }) => {
     setOTP(['', '', '', '']);
 
     try {
-      const response = await fetch('http://10.9.20.246:3000/api/users/forgot-password', {
+      const response = await fetch('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,14 +113,19 @@ const OTPVerificationScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
+  <Svg width={14} height={14} viewBox="0 0 320 512">
+    <Path
+      fill="#333"
+      d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"
+    />
+  </Svg>
+</TouchableOpacity>
 
       <Text style={styles.header}>Email verification</Text>
       <Text style={styles.subheader}>
-        Enter the verification code sent to:{'\n'}
-        {email ? email.replace(/(.{3})(.*)(?=@)/, '$1****$2') : 'your email'}
-      </Text>
+  Enter the verification code sent to:{'\n'}
+  {email ? email.replace(/^(...).*(@.*)$/, '$1***$2') : 'your email'}
+</Text>
 
       <View style={styles.otpContainer}>
   {otp.map((value, index) => (
@@ -133,11 +141,16 @@ const OTPVerificationScreen = ({ route }) => {
   ))}
 </View>
 
-      <Text style={styles.resendText}>
+<Text style={styles.resendText}>
         Didn't receive code?{' '}
         <Text style={resendEnabled ? styles.resendLinkEnabled : styles.resendLinkDisabled} onPress={resendEnabled ? handleResendCode : null}>
           Resend
         </Text>
+        {!resendEnabled && (
+          <Text style={styles.timerText}>
+            {' '}({timer}s)
+          </Text>
+        )}
       </Text>
 
       <TouchableOpacity style={styles.continueButton} onPress={handleOTPVerification}>
@@ -153,6 +166,10 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     alignItems: 'center',
+  },
+  timerText: {
+    fontSize: 16,
+    color: '#666',
   },
   backButton: {
     position: 'absolute',
@@ -208,7 +225,7 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: '#ff9800',
     paddingVertical: 15,
-    paddingHorizontal: 30,
+    paddingHorizontal: 150,
     borderRadius: 30,
   },
   continueButtonText: {

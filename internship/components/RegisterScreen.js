@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import axios from 'axios';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
+import Svg, { Path } from 'react-native-svg';
 
 
 const RegisterScreen = () => {
@@ -11,9 +12,19 @@ const RegisterScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [agreeTOS, setAgreeTOS] = useState(false);
-  const navigation = useNavigation(); 
+  const [emailError, setEmailError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [agreeTOSError, setAgreeTOSError] = useState('');
+  const [registrationError, setRegistrationError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation();
 
-  
+  const handleLoginChange = () => {
+    navigation.navigate('LoginScreen');
+  };
+
+
   GoogleSignin.configure({
     webClientId: '647970317624-gmlj548nfk6hoahb8cepisa6tvdb3p78.apps.googleusercontent.com',
 
@@ -24,44 +35,80 @@ const RegisterScreen = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       console.log(userInfo);
-  
+
       // Send the user info to your backend server
-      const response = await axios.post('http://10.9.20.246:3000/api/users/google-signin', {
+      const response = await axios.post('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/google-signin', {
         idToken: userInfo.idToken,
         email: userInfo.user.email,
         name: userInfo.user.name,
         // Include any other relevant user data
       });
-  
+
       // Handle the response from the server
       console.log(response.data.message);
-  
+
       // Navigate to the LoginSuccessScreen
-      navigation.navigate('LoginSuccessScreen');
+      navigation.navigate('LoginScreen');
     } catch (error) {
       console.error(error);
     }
   };
-  
 
- 
+
+
   const handleRegistration = async () => {
+
+    setEmailError('');
+    setUsernameError('');
+    setPasswordError('');
+    setAgreeTOSError('');
+    setRegistrationError('');
+
+    // Perform validation
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+    if (!username) {
+      Alert.alert('Error', 'Please enter a username');
+      return;
+    }
+    if (!password) {
+      Alert.alert('Error', 'Please enter a password');
+      return;
+    }
+    if (!agreeTOS) {
+      Alert.alert('Error', 'Please agree to the Terms of Service and Privacy Policy');
+      return;
+    }
     try {
       // Make a POST request to the server's registration endpoint
-      const response = await axios.post('http://10.9.20.246:3000/api/users/register', {
+      const response = await axios.post('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/register', {
         email,
         username,
         password,
       });
-  
+
       // Handle the response from the server
       console.log(response.data.message);
+      navigation.navigate('LoginScreen');
+
       // You can also navigate to a different screen or show a success message
-  
+
     } catch (error) {
       console.error(error);
-      // Handle the error
-      // You can show an error message to the user
+      if (error.response) {
+        if (error.response.status === 400) {
+          // Check if the status code is 400 (Bad Request)
+          Alert.alert('Error', 'The email address is already registered');
+        } else {
+          // Handle other error status codes
+          Alert.alert('Error', 'An error occurred during registration');
+        }
+      } else {
+        // Handle other errors (e.g., network error)
+        Alert.alert('Error', 'An error occurred during registration');
+      }
     }
   };
 
@@ -80,6 +127,7 @@ const RegisterScreen = () => {
           keyboardType="email-address"
           autoCapitalize="none"
         />
+        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
       </View>
 
       <View style={styles.inputContainer}>
@@ -90,18 +138,32 @@ const RegisterScreen = () => {
           value={username}
           onChangeText={setUsername}
         />
+        {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="**********"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </View>
+  <Text style={styles.label}>Password</Text>
+  <View style={styles.passwordContainer}>
+    <TextInput
+      style={styles.passwordInput}
+      placeholder="**********"
+      value={password}
+      onChangeText={setPassword}
+      secureTextEntry={!showPassword}
+    />
+    <TouchableOpacity
+      style={styles.eyeIcon}
+      onPress={() => setShowPassword(!showPassword)}
+    >
+      <Image
+        source={showPassword ? require('../assets/eyes-open.png') : require('../assets/eyes-closed.jpeg')}
+        style={styles.eyeIconImage}
+      />
+    </TouchableOpacity>
+  </View>
+  {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+</View>
+
 
       <View style={styles.checkboxContainer}>
         <BouncyCheckbox
@@ -114,24 +176,32 @@ const RegisterScreen = () => {
           iconStyle={{ borderColor: '#ff9800' }}
           textStyle={{ fontFamily: 'JosefinSans-Regular', fontSize: 16 }}
         />
-         <Text style={styles.tosLinkContainer}>
+        <Text style={styles.tosLinkContainer}>
           <Text style={styles.tosLink}>Terms of Service</Text>
           <Text style={styles.andText}> and </Text>
           <Text style={styles.tosLink}>Privacy Policy</Text>
         </Text>
+        {agreeTOSError ? <Text style={styles.errorText}>{agreeTOSError}</Text> : null}
+
+      </View>
+      {registrationError ? <Text style={styles.errorText}>{registrationError}</Text> : null}
+      <TouchableOpacity style={styles.registerButton} onPress={handleRegistration}>
+        <Text style={styles.registerButtonText}>Register</Text>
+      </TouchableOpacity>
+
+      <View style={styles.divider}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.orSignInWith}>Or sign in with</Text>
+        <View style={styles.dividerLine} />
       </View>
 
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegistration}>
-  <Text style={styles.registerButtonText}>Register</Text>
-</TouchableOpacity>
-
-      <View style={styles.divider} />
       <TouchableOpacity style={styles.googleButton} onPress={signIn}>
-  <Image source={require('../assets/google.png')} style={styles.googleIcon} />
-</TouchableOpacity>
+        <Image source={require('../assets/google.png')} style={styles.googleIcon} />
+      </TouchableOpacity>
 
 
-      <TouchableOpacity>
+
+      <TouchableOpacity onPress={handleLoginChange}>
         <Text style={styles.signInLink}>Have an account? Sign In</Text>
       </TouchableOpacity>
 
@@ -144,6 +214,26 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  eyeIconImage: {
+    width: 24,
+    height: 24,
   },
   header: {
     fontSize: 50,
@@ -207,9 +297,19 @@ const styles = StyleSheet.create({
     fontSize: 20, // Increased font size
   },
   divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
     height: 1,
     backgroundColor: '#ccc',
-    marginBottom: 20,
+  },
+  orSignInWith: {
+    paddingHorizontal: 10,
+    fontSize: 18,
+    color: '#666',
   },
   signInLink: {
     fontSize: 16,
@@ -237,6 +337,10 @@ const styles = StyleSheet.create({
   googleIcon: {
     width: 30,
     height: 30,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 5,
   },
 });
 

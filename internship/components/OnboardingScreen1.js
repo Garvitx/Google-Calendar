@@ -3,18 +3,27 @@ import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Pagination from './Pagination';
 import OnboardingScreen2 from './OnboardingScreen2';
 import OnboardingScreen3 from './OnboardingScreen3';
+import { useNavigation } from '@react-navigation/native';
+
 
 
 const OnboardingScreen = () => {
   
   const totalScreens = 3;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigation = useNavigation();
+
 
   const handleNextClick = () => {
     if (currentIndex < totalScreens - 1) {
       setCurrentIndex(currentIndex + 1);
     }
   };// Replace with the actual current screen index
+
+  const handleSkip = () => {
+    navigation.navigate('LoginScreen');
+  }; 
+
 
   
 
@@ -28,7 +37,7 @@ const OnboardingScreen = () => {
         </Text>
         <Pagination currentIndex={currentIndex} totalScreens={totalScreens} />
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.skipButton}>
+          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
             <Text style={styles.skipButtonText}>Skip</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.nextButton} onPress={handleNextClick}>

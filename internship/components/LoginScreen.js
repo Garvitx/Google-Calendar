@@ -18,7 +18,7 @@ const LoginScreen = () => {
   };
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://10.9.20.246:3000/api/users/login', {
+      const response = await axios.post('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/login', {
         email,
         password,
       });
@@ -47,7 +47,7 @@ const LoginScreen = () => {
       const { idToken, user } = userInfo;
 
       // Send the idToken and user email to your backend for verification and user lookup
-      const response = await axios.post('http://10.9.20.246:3000/api/users/google-signin', {
+      const response = await axios.post('https://jellyfish-app-84eu8.ondigitalocean.app/api/users/google-signin', {
         idToken,
         email: user.email,
       });
